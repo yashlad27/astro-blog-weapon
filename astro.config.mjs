@@ -13,5 +13,14 @@ export default defineConfig({
     platformProxy: {
       enabled: true,
     },
+    runtime: {
+      mode: "local",
+      type: "pages",
+    },
   }),
+  vite: {
+    define: {
+      "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development"),
+    },
+  },
 });

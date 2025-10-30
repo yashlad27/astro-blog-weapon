@@ -1,0 +1,440 @@
+---
+// AI Chat Widget Component
+---
+
+<div id="chat-widget" class="chat-widget">
+  <button id="chat-toggle" class="chat-toggle" aria-label="Toggle chat">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+  </button>
+
+  <div id="chat-container" class="chat-container hidden">
+    <div class="chat-header">
+      <h3>🤖 AI Assistant</h3>
+      <button id="chat-close" class="chat-close">&times;</button>
+    </div>
+
+    <div id="chat-messages" class="chat-messages">
+      <div class="chat-welcome">
+        <p>👋 Hi! I'm your AI assistant. Ask me anything!</p>
+      </div>
+    </div>
+
+    <div class="chat-input-container">
+      <input
+        type="text"
+        id="chat-input"
+        class="chat-input"
+        placeholder="Type your message..."
+        autocomplete="off"
+      />
+      <button id="chat-send" class="chat-send">Send</button>
+    </div>
+
+    <div class="chat-actions">
+      <button id="chat-clear" class="chat-action-btn">Clear History</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+
+  .chat-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .chat-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+  }
+
+  .chat-container {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 380px;
+    height: 550px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+  }
+
+  .chat-container.hidden {
+    display: none;
+  }
+
+  .chat-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .chat-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .chat-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  .chat-close:hover {
+    opacity: 1;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .chat-welcome {
+    text-align: center;
+    color: #64748b;
+    padding: 20px;
+  }
+
+  .message {
+    display: flex;
+    gap: 8px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .message.user {
+    flex-direction: row-reverse;
+  }
+
+  .message-bubble {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    word-wrap: break-word;
+  }
+
+  .message.user .message-bubble {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  .message.assistant .message-bubble {
+    background: #f1f5f9;
+    color: #1e293b;
+  }
+
+  .message-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .message.user .message-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .message.assistant .message-avatar {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+
+  .typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 10px;
+  }
+
+  .typing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #94a3b8;
+    animation: typing 1.4s infinite;
+  }
+
+  .typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes typing {
+    0%, 60%, 100% {
+      transform: translateY(0);
+    }
+    30% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .chat-input-container {
+    padding: 16px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 8px;
+  }
+
+  .chat-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 20px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .chat-input:focus {
+    border-color: #667eea;
+  }
+
+  .chat-send {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .chat-send:hover {
+    transform: translateY(-2px);
+  }
+
+  .chat-send:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .chat-actions {
+    padding: 0 16px 16px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .chat-action-btn {
+    padding: 6px 12px;
+    background: #f1f5f9;
+    border: none;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .chat-action-btn:hover {
+    background: #e2e8f0;
+  }
+
+  @media (max-width: 480px) {
+    .chat-container {
+      width: calc(100vw - 40px);
+      right: 20px;
+      left: 20px;
+      height: calc(100vh - 140px);
+    }
+  }
+</style>
+
+<script>
+  const chatToggle = document.getElementById('chat-toggle');
+  const chatContainer = document.getElementById('chat-container');
+  const chatClose = document.getElementById('chat-close');
+  const chatInput = document.getElementById('chat-input') as HTMLInputElement;
+  const chatSend = document.getElementById('chat-send') as HTMLButtonElement;
+  const chatMessages = document.getElementById('chat-messages');
+  const chatClear = document.getElementById('chat-clear');
+
+  let isOpen = false;
+
+  // Toggle chat
+  chatToggle?.addEventListener('click', () => {
+    isOpen = !isOpen;
+    chatContainer?.classList.toggle('hidden', !isOpen);
+    if (isOpen) {
+      chatInput?.focus();
+      loadHistory();
+    }
+  });
+
+  chatClose?.addEventListener('click', () => {
+    isOpen = false;
+    chatContainer?.classList.add('hidden');
+  });
+
+  // Send message
+  async function sendMessage() {
+    const message = chatInput?.value.trim();
+    if (!message) return;
+
+    // Add user message to UI
+    addMessage('user', message);
+    chatInput.value = '';
+    chatSend.disabled = true;
+
+    // Show typing indicator
+    const typingId = showTyping();
+
+    try {
+      const response = await fetch('/api/agent/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.assistantMessage) {
+        removeTyping(typingId);
+        addMessage('assistant', data.assistantMessage.content);
+      } else {
+        removeTyping(typingId);
+        addMessage('assistant', 'Sorry, something went wrong.');
+      }
+    } catch (error) {
+      console.error('Chat error:', error);
+      removeTyping(typingId);
+      addMessage('assistant', 'Failed to connect. Please try again.');
+    } finally {
+      chatSend.disabled = false;
+      chatInput?.focus();
+    }
+  }
+
+  chatSend?.addEventListener('click', sendMessage);
+  chatInput?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // Clear history
+  chatClear?.addEventListener('click', async () => {
+    if (!confirm('Clear chat history?')) return;
+
+    try {
+      await fetch('/api/agent/clear', { method: 'POST' });
+      if (chatMessages) {
+        chatMessages.innerHTML = '<div class="chat-welcome"><p>Chat history cleared!</p></div>';
+      }
+    } catch (error) {
+      console.error('Clear error:', error);
+    }
+  });
+
+  function addMessage(role: 'user' | 'assistant', content: string) {
+    const welcome = chatMessages?.querySelector('.chat-welcome');
+    if (welcome) welcome.remove();
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${role}`;
+
+    const avatar = role === 'user' ? '👤' : '🤖';
+    messageDiv.innerHTML = `
+      <div class="message-avatar">${avatar}</div>
+      <div class="message-bubble">${escapeHtml(content)}</div>
+    `;
+
+    chatMessages?.appendChild(messageDiv);
+    chatMessages!.scrollTop = chatMessages!.scrollHeight;
+  }
+
+  function showTyping(): string {
+    const id = 'typing-' + Date.now();
+    const typingDiv = document.createElement('div');
+    typingDiv.id = id;
+    typingDiv.className = 'message assistant';
+    typingDiv.innerHTML = `
+      <div class="message-avatar">🤖</div>
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    `;
+    chatMessages?.appendChild(typingDiv);
+    chatMessages!.scrollTop = chatMessages!.scrollHeight;
+    return id;
+  }
+
+  function removeTyping(id: string) {
+    document.getElementById(id)?.remove();
+  }
+
+  async function loadHistory() {
+    try {
+      const response = await fetch('/api/agent/history');
+      const data = await response.json();
+
+      if (data.success && data.messages.length > 0) {
+        chatMessages!.innerHTML = '';
+        data.messages.forEach((msg: any) => {
+          addMessage(msg.role, msg.content);
+        });
+      }
+    } catch (error) {
+      console.error('Load history error:', error);
+    }
+  }
+
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
